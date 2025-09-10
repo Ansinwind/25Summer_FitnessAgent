@@ -1,0 +1,670 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能饮食计划 - AI Fitness Agent</title>
+    <link rel="stylesheet" href="nutrition-plan.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-apple-alt"></i>
+                <span>AI Fitness</span>
+            </div>
+            <div class="nav-menu">
+                <a href="fitness-plan.html" class="nav-link">健身计划</a>
+                <a href="#" class="nav-link active">饮食计划</a>
+                <a href="route-medical.html" class="nav-link">路线&医疗</a>
+            </div>
+            <div class="nav-user">
+                <div class="user-avatar">
+                    <img src="/Image/image.png" alt="用户头像">
+                    <div class="user-level">Lv.5</div>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <!-- 用户营养信息卡片 -->
+        <section class="nutrition-overview">
+            <div class="overview-header">
+                <h2><i class="fas fa-chart-pie"></i> 今日营养概览</h2>
+                <div class="date-selector">
+                    <button class="date-btn" id="prev-day">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="current-date">2024年1月10日</span>
+                    <button class="date-btn" id="next-day">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="nutrition-stats">
+                <div class="macro-chart">
+                    <div class="chart-container">
+                        <canvas id="macro-chart"></canvas>
+                    </div>
+                    <div class="macro-legend">
+                        <div class="legend-item">
+                            <div class="legend-color protein"></div>
+                            <span>蛋白质 120g</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color carbs"></div>
+                            <span>碳水 200g</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fat"></div>
+                            <span>脂肪 65g</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="calorie-progress">
+                    <div class="calorie-info">
+                        <h3>卡路里摄入</h3>
+                        <div class="calorie-numbers">
+                            <span class="current">1,850</span>
+                            <span class="separator">/</span>
+                            <span class="target">2,200</span>
+                            <span class="unit">kcal</span>
+                        </div>
+                    </div>
+                    <div class="calorie-bar">
+                        <div class="calorie-fill" style="width: 84%"></div>
+                    </div>
+                    <div class="calorie-remaining">
+                        还需摄入 350 kcal
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI饮食目标设置 -->
+        <section class="diet-goals">
+            <div class="section-header">
+                <h2><i class="fas fa-bullseye"></i> 饮食目标设置</h2>
+                <p>根据您的健身目标，AI为您推荐最适合的饮食方案</p>
+            </div>
+            <div class="goals-form">
+                <div class="form-group">
+                    <label>主要目标</label>
+                    <div class="goal-options">
+                        <button class="goal-btn active" data-goal="weight-loss">
+                            <i class="fas fa-weight-hanging"></i>
+                            <span>减脂</span>
+                        </button>
+                        <button class="goal-btn" data-goal="muscle-gain">
+                            <i class="fas fa-dumbbell"></i>
+                            <span>增肌</span>
+                        </button>
+                        <button class="goal-btn" data-goal="maintenance">
+                            <i class="fas fa-balance-scale"></i>
+                            <span>维持</span>
+                        </button>
+                        <button class="goal-btn" data-goal="performance">
+                            <i class="fas fa-running"></i>
+                            <span>运动表现</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>每日卡路里目标</label>
+                        <input type="number" class="form-input" value="2200" min="1200" max="4000">
+                    </div>
+                    <div class="form-group">
+                        <label>蛋白质比例 (%)</label>
+                        <input type="range" class="form-range" min="15" max="40" value="25" id="protein-range">
+                        <span class="range-value">25%</span>
+                    </div>
+                </div>
+                <button class="generate-btn">
+                    <i class="fas fa-magic"></i>
+                    生成AI饮食计划
+                </button>
+            </div>
+        </section>
+
+        <!-- 今日餐单 -->
+        <section class="daily-meals">
+            <div class="section-header">
+                <h2><i class="fas fa-utensils"></i> 今日餐单</h2>
+                <div class="meal-filter">
+                    <button class="filter-btn active">全部</button>
+                    <button class="filter-btn">早餐</button>
+                    <button class="filter-btn">午餐</button>
+                    <button class="filter-btn">晚餐</button>
+                    <button class="filter-btn">加餐</button>
+                </div>
+            </div>
+            <div class="meals-grid">
+                <!-- 早餐 -->
+                <div class="meal-card breakfast">
+                    <div class="meal-header">
+                        <div class="meal-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="meal-info">
+                            <h3>早餐</h3>
+                            <p>7:00 - 8:00</p>
+                        </div>
+                        <div class="meal-calories">420 kcal</div>
+                    </div>
+                    <div class="meal-items">
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="燕麦粥">
+                            </div>
+                            <div class="item-details">
+                                <h4>燕麦粥</h4>
+                                <p>50g 燕麦 + 200ml 牛奶</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 45g</span>
+                                    <span class="macro">蛋白: 12g</span>
+                                    <span class="macro">脂肪: 8g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="水煮蛋">
+                            </div>
+                            <div class="item-details">
+                                <h4>水煮蛋</h4>
+                                <p>2个鸡蛋</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 1g</span>
+                                    <span class="macro">蛋白: 12g</span>
+                                    <span class="macro">脂肪: 10g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 午餐 -->
+                <div class="meal-card lunch">
+                    <div class="meal-header">
+                        <div class="meal-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="meal-info">
+                            <h3>午餐</h3>
+                            <p>12:00 - 13:00</p>
+                        </div>
+                        <div class="meal-calories">650 kcal</div>
+                    </div>
+                    <div class="meal-items">
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="鸡胸肉沙拉">
+                            </div>
+                            <div class="item-details">
+                                <h4>鸡胸肉沙拉</h4>
+                                <p>150g 鸡胸肉 + 混合蔬菜</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 15g</span>
+                                    <span class="macro">蛋白: 35g</span>
+                                    <span class="macro">脂肪: 12g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="糙米饭">
+                            </div>
+                            <div class="item-details">
+                                <h4>糙米饭</h4>
+                                <p>100g 糙米</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 75g</span>
+                                    <span class="macro">蛋白: 8g</span>
+                                    <span class="macro">脂肪: 2g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 晚餐 -->
+                <div class="meal-card dinner">
+                    <div class="meal-header">
+                        <div class="meal-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="meal-info">
+                            <h3>晚餐</h3>
+                            <p>18:00 - 19:00</p>
+                        </div>
+                        <div class="meal-calories">580 kcal</div>
+                    </div>
+                    <div class="meal-items">
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="三文鱼">
+                            </div>
+                            <div class="item-details">
+                                <h4>烤三文鱼</h4>
+                                <p>120g 三文鱼 + 柠檬</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 0g</span>
+                                    <span class="macro">蛋白: 25g</span>
+                                    <span class="macro">脂肪: 18g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="蒸蛋羹">
+                            </div>
+                            <div class="item-details">
+                                <h4>蒸蛋羹</h4>
+                                <p>2个鸡蛋 + 虾仁</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 5g</span>
+                                    <span class="macro">蛋白: 20g</span>
+                                    <span class="macro">脂肪: 15g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 加餐 -->
+                <div class="meal-card snack">
+                    <div class="meal-header">
+                        <div class="meal-icon">
+                            <i class="fas fa-apple-alt"></i>
+                        </div>
+                        <div class="meal-info">
+                            <h3>加餐</h3>
+                            <p>15:00 - 16:00</p>
+                        </div>
+                        <div class="meal-calories">200 kcal</div>
+                    </div>
+                    <div class="meal-items">
+                        <div class="meal-item">
+                            <div class="item-image">
+                                <img src="https://via.placeholder.com/60" alt="坚果">
+                            </div>
+                            <div class="item-details">
+                                <h4>混合坚果</h4>
+                                <p>30g 杏仁 + 核桃</p>
+                                <div class="item-macros">
+                                    <span class="macro">碳水: 8g</span>
+                                    <span class="macro">蛋白: 6g</span>
+                                    <span class="macro">脂肪: 16g</span>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="action-btn favorite">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn replace">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 营养成分分析 -->
+        <section class="nutrition-analysis">
+            <div class="section-header">
+                <h2><i class="fas fa-microscope"></i> 营养成分分析</h2>
+                <div class="analysis-tabs">
+                    <button class="tab-btn active" data-tab="vitamins">维生素</button>
+                    <button class="tab-btn" data-tab="minerals">矿物质</button>
+                    <button class="tab-btn" data-tab="fiber">纤维</button>
+                </div>
+            </div>
+            <div class="analysis-content">
+                <div class="tab-content active" id="vitamins">
+                    <div class="vitamin-grid">
+                        <div class="vitamin-item">
+                            <div class="vitamin-icon">
+                                <i class="fas fa-carrot"></i>
+                            </div>
+                            <div class="vitamin-info">
+                                <h4>维生素A</h4>
+                                <div class="vitamin-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 85%"></div>
+                                    </div>
+                                    <span class="progress-text">85%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vitamin-item">
+                            <div class="vitamin-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="vitamin-info">
+                                <h4>维生素D</h4>
+                                <div class="vitamin-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 60%"></div>
+                                    </div>
+                                    <span class="progress-text">60%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vitamin-item">
+                            <div class="vitamin-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="vitamin-info">
+                                <h4>维生素C</h4>
+                                <div class="vitamin-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 120%"></div>
+                                    </div>
+                                    <span class="progress-text">120%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vitamin-item">
+                            <div class="vitamin-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="vitamin-info">
+                                <h4>维生素E</h4>
+                                <div class="vitamin-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                    <span class="progress-text">75%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="minerals">
+                    <div class="mineral-grid">
+                        <div class="mineral-item">
+                            <div class="mineral-icon">
+                                <i class="fas fa-bone"></i>
+                            </div>
+                            <div class="mineral-info">
+                                <h4>钙</h4>
+                                <div class="mineral-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 90%"></div>
+                                    </div>
+                                    <span class="progress-text">90%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mineral-item">
+                            <div class="mineral-icon">
+                                <i class="fas fa-magnet"></i>
+                            </div>
+                            <div class="mineral-info">
+                                <h4>铁</h4>
+                                <div class="mineral-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 70%"></div>
+                                    </div>
+                                    <span class="progress-text">70%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="fiber">
+                    <div class="fiber-info">
+                        <div class="fiber-chart">
+                            <canvas id="fiber-chart"></canvas>
+                        </div>
+                        <div class="fiber-details">
+                            <h4>膳食纤维摄入</h4>
+                            <p>今日已摄入 <strong>28g</strong> 膳食纤维，达到推荐量的 <strong>112%</strong></p>
+                            <div class="fiber-sources">
+                                <h5>主要来源：</h5>
+                                <ul>
+                                    <li>燕麦粥 - 8g</li>
+                                    <li>混合蔬菜 - 6g</li>
+                                    <li>糙米饭 - 4g</li>
+                                    <li>坚果 - 3g</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 食谱推荐 -->
+        <section class="recipe-recommendations">
+            <div class="section-header">
+                <h2><i class="fas fa-book-open"></i> 推荐食谱</h2>
+                <button class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i>
+                    刷新推荐
+                </button>
+            </div>
+            <div class="recipes-grid">
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="https://via.placeholder.com/200x150" alt="健康沙拉">
+                        <div class="recipe-badge">高蛋白</div>
+                    </div>
+                    <div class="recipe-content">
+                        <h3>地中海鸡胸肉沙拉</h3>
+                        <p>富含蛋白质和健康脂肪，适合增肌期</p>
+                        <div class="recipe-meta">
+                            <span class="cooking-time">
+                                <i class="fas fa-clock"></i>
+                                15分钟
+                            </span>
+                            <span class="difficulty">
+                                <i class="fas fa-signal"></i>
+                                简单
+                            </span>
+                            <span class="calories">
+                                <i class="fas fa-fire"></i>
+                                320 kcal
+                            </span>
+                        </div>
+                        <div class="recipe-actions">
+                            <button class="recipe-btn primary">
+                                <i class="fas fa-eye"></i>
+                                查看详情
+                            </button>
+                            <button class="recipe-btn secondary">
+                                <i class="fas fa-heart"></i>
+                                收藏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="https://via.placeholder.com/200x150" alt="蛋白奶昔">
+                        <div class="recipe-badge">低卡</div>
+                    </div>
+                    <div class="recipe-content">
+                        <h3>香蕉蛋白奶昔</h3>
+                        <p>训练后补充，快速恢复肌肉</p>
+                        <div class="recipe-meta">
+                            <span class="cooking-time">
+                                <i class="fas fa-clock"></i>
+                                5分钟
+                            </span>
+                            <span class="difficulty">
+                                <i class="fas fa-signal"></i>
+                                简单
+                            </span>
+                            <span class="calories">
+                                <i class="fas fa-fire"></i>
+                                180 kcal
+                            </span>
+                        </div>
+                        <div class="recipe-actions">
+                            <button class="recipe-btn primary">
+                                <i class="fas fa-eye"></i>
+                                查看详情
+                            </button>
+                            <button class="recipe-btn secondary">
+                                <i class="fas fa-heart"></i>
+                                收藏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="https://via.placeholder.com/200x150" alt="蒸蛋">
+                        <div class="recipe-badge">高营养</div>
+                    </div>
+                    <div class="recipe-content">
+                        <h3>虾仁蒸蛋羹</h3>
+                        <p>营养丰富，易消化，适合晚餐</p>
+                        <div class="recipe-meta">
+                            <span class="cooking-time">
+                                <i class="fas fa-clock"></i>
+                                20分钟
+                            </span>
+                            <span class="difficulty">
+                                <i class="fas fa-signal"></i>
+                                中等
+                            </span>
+                            <span class="calories">
+                                <i class="fas fa-fire"></i>
+                                250 kcal
+                            </span>
+                        </div>
+                        <div class="recipe-actions">
+                            <button class="recipe-btn primary">
+                                <i class="fas fa-eye"></i>
+                                查看详情
+                            </button>
+                            <button class="recipe-btn secondary">
+                                <i class="fas fa-heart"></i>
+                                收藏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 食谱详情模态框 -->
+    <div class="modal" id="recipe-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>食谱详情</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="recipe-detail">
+                    <div class="recipe-detail-image">
+                        <img src="https://via.placeholder.com/400x300" alt="食谱图片">
+                    </div>
+                    <div class="recipe-detail-content">
+                        <h4>地中海鸡胸肉沙拉</h4>
+                        <div class="recipe-detail-meta">
+                            <span class="cooking-time">
+                                <i class="fas fa-clock"></i>
+                                15分钟
+                            </span>
+                            <span class="servings">
+                                <i class="fas fa-users"></i>
+                                2人份
+                            </span>
+                            <span class="calories">
+                                <i class="fas fa-fire"></i>
+                                320 kcal/份
+                            </span>
+                        </div>
+                        <div class="ingredients">
+                            <h5>食材清单：</h5>
+                            <ul>
+                                <li>鸡胸肉 200g</li>
+                                <li>混合生菜 100g</li>
+                                <li>樱桃番茄 8个</li>
+                                <li>黄瓜 1根</li>
+                                <li>橄榄油 2勺</li>
+                                <li>柠檬汁 1勺</li>
+                            </ul>
+                        </div>
+                        <div class="instructions">
+                            <h5>制作步骤：</h5>
+                            <ol>
+                                <li>鸡胸肉用盐和黑胡椒腌制10分钟</li>
+                                <li>平底锅煎制鸡胸肉至金黄</li>
+                                <li>蔬菜洗净切块</li>
+                                <li>调制橄榄油柠檬汁</li>
+                                <li>所有食材混合装盘</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="nutrition-plan.js"></script>
+</body>
+</html>
