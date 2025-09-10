@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Fitness Agent</title>
+    <!-- 链接外部CSS文件 -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -26,7 +27,7 @@
                 <select id="frequency" required>
                     <option value="">选择锻炼频率</option>
                     <option value="1-2_times_week">每周1-2次</option>
-                    <option value="3_times_week">每周3-4次</option>
+                    <option value="3-4_times_week">每周3-4次</option>
                     <option value="5_times_week">每周5次以上</option>
                 </select>
                 <button type="submit">开始我的计划</button>
@@ -49,34 +50,39 @@
             <button class="nav-btn" data-target="medical">运动医疗咨询</button>
         </nav>
 
-        <main id="content-slider">
-            <section id="plan" class="content-section active">
-                <h2>您的专属计划</h2>
-                <div class="plan-container">
-                    <div id="workout-calendar"><h3>本周锻炼日历</h3></div>
-                    <div id="diet-recommendation"><h3>今日饮食建议</h3></div>
-                </div>
-            </section>
-
-            <section id="routes" class="content-section">
-                <h2>锻炼路线</h2>
-                <div id="map"></div>
-                <div id="route-history">
-                    <h3>历史路线</h3>
+        <main>
+             <div id="content-slider">
+                <section id="plan" class="content-section">
+                    <h2>您的专属计划</h2>
+                    <div class="plan-container">
+                        <div id="workout-calendar"><h3>本周锻炼日历</h3></div>
+                        <div id="diet-recommendation"><h3>今日饮食建议</h3></div>
                     </div>
-            </section>
+                </section>
 
-            <section id="medical" class="content-section">
-                <h2>运动医疗咨询</h2>
-                <div class="chat-container">
-                    <div id="chat-box"></div>
-                    <input type="text" id="chat-input" placeholder="请输入您的问题...">
-                    <button id="send-chat-btn">发送</button>
-                </div>
-            </section>
+                <section id="routes" class="content-section">
+                    <h2>锻炼路线</h2>
+                    <div id="map"></div>
+                    <div id="route-history">
+                        <h3>历史路线</h3>
+                    </div>
+                </section>
+
+                <section id="medical" class="content-section">
+                    <h2>运动医疗咨询</h2>
+                    <div class="chat-container">
+                        <div id="chat-box"></div>
+                        <div class="input-area">
+                            <input type="text" id="chat-input" placeholder="请输入您的问题...">
+                            <button id="send-chat-btn">发送</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
+    <!-- 链接外部JavaScript文件 -->
     <script src="script.js"></script>
 </body>
 </html>
