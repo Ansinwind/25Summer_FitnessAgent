@@ -1,0 +1,141 @@
+/* --- 全局与配色 --- */
+:root {
+    --primary-color: #003366; /* 商务蓝 */
+    --secondary-color: #f4f7f6; /* 浅灰背景 */
+    --accent-color: #007BFF;   /* 活力蓝 */
+    --text-color: #333;
+    --light-text-color: #fff;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+/* --- Onboarding 弹窗 --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* 默认隐藏 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+}
+.modal-content h2 { color: var(--primary-color); }
+.modal-content form { display: flex; flex-direction: column; gap: 15px; }
+.modal-content input, .modal-content select, .modal-content button {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.modal-content button {
+    background-color: var(--accent-color);
+    color: var(--light-text-color);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.modal-content button:hover { background-color: #0056b3; }
+
+/* --- 主体布局 --- */
+header {
+    background-color: var(--primary-color);
+    color: var(--light-text-color);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#user-profile-summary button {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.nav-btn {
+    padding: 15px 25px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    position: relative;
+    color: var(--text-color);
+}
+.nav-btn.active { color: var(--accent-color); }
+.nav-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 3px;
+    background-color: var(--accent-color);
+}
+
+/* --- 滑动交互 --- */
+#main-container {
+    overflow: hidden;
+}
+#content-slider {
+    display: flex;
+    width: 300%; /* 3个section */
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.content-section {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* --- 各 Section 特有样式 --- */
+.plan-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+#workout-calendar, #diet-recommendation {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 8px;
+}
+.chat-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+#chat-box {
+    height: 300px;
+    border: 1px solid #eee;
+    margin-bottom: 10px;
+    padding: 10px;
+    overflow-y: auto;
+}
