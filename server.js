@@ -94,6 +94,59 @@ app.post('/api/generate-plan', async (req, res) => {
     }
 });
 
+/**
+ * @route POST /api/consult
+ * @desc 代理 DashScope 运动医疗咨询接口，格式参考官方示例
+ */
+app.post('/api/consult', async (req, res) => {
+    // 推荐用环境变量存储敏感信息
+    const apiKey = process.env.DASHSCOPE_API_KEY || 'sk-7c7502b929b74ebab83df17102d277c8'; // 可直接写死测试
+    const appId = process.env.DASHSCOPE_APP_ID || '31a3841a6db6402da1b066231595f912'; // 替换为实际应用ID
+
+    const url = `https://dashscope.aliyuncs.com/api/v1/apps/${appId}/completion`;
+
+    // 前端传来的内容直接作为 prompt
+    const userMessage = req.body.userMessage || '';
+    const systemPrompt = req.body.systemPrompt || '';
+
+    const data = {
+        input: {
+            prompt: `${systemPrompt}\n${userMessage}`
+        },
+        parameters: {},
+        debug: {}
+    };
+
+    try {
+        const response = await axios.post(url, data, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 200) {
+            res.json({ text: response.data.output.text });
+        } else {
+            res.status(response.status).json({
+                request_id: response.headers['request_id'],
+                code: response.status,
+                message: response.data.message
+            });
+        }
+    } catch (error) {
+        console.error(`Error calling DashScope: ${error.message}`);
+        if (error.response) {
+            res.status(error.response.status).json({
+                error: error.message,
+                data: error.response.data
+            });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
+    }
+});
+
 // 其他API路由，如医疗咨询、路线记录等，可以类似地添加
 
 app.listen(PORT, () => {
