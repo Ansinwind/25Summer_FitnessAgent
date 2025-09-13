@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Fitness Agent</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=iXKAwRbZ2ccXtZnAa36190nQhsGRaeXu"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
 
@@ -29,26 +30,20 @@
                     <option value="3-4_times_week">每周3-4次</option>
                     <option value="5_times_week">每周5次以上</option>
                 </select>
-                <button type="submit">下一步</button>
+                <button type="submit">完成</button>
             </form>
         </div>
     </div>
-
-    <div id="plan-request-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>更进一步</h2>
-            <p>请告诉我们您更具体的需求，例如“我膝盖不好，希望多一些上肢训练”或“我偏好地中海饮食”。</p>
-            <form id="plan-request-form">
-                <textarea id="custom-plan-request" placeholder="输入您的个性化需求..." rows="4"></textarea>
-                <button type="submit">生成我的专属计划</button>
-            </form>
-        </div>
-    </div>
-
 
     <div id="main-container">
         <header>
             <h1>AI Fitness Agent</h1>
+            <div class="header-nav">
+                <button class="nav-btn active" data-target="home">主页</button>
+                <button class="nav-btn" data-target="plan">健身饮食计划</button>
+                <button class="nav-btn" data-target="routes">锻炼路线计划</button>
+                <button class="nav-btn" data-target="medical">运动医疗咨询</button>
+            </div>
             <div id="user-profile-summary">
                 <span id="profile-text"></span>
                 <button id="edit-profile-btn">修改信息</button>
@@ -56,37 +51,104 @@
         </header>
 
         <nav>
-            <button class="nav-btn active" data-target="plan">健身饮食计划</button>
-            <button class="nav-btn" data-target="routes">锻炼路线规划</button>
-            <button class="nav-btn" data-target="medical">运动医疗咨询</button>
         </nav>
 
         <main>
              <div id="content-slider">
+                <section id="home" class="content-section">
+                    <div class="home-layout">
+                        <div class="home-left">
+                            <div class="home-card">
+                                <h2>欢迎使用 AI Fitness Agent</h2>
+                                <p>完善信息，获取专属健身与路线建议。</p>
+                                <form id="home-user-info-form">
+                                    <input type="number" id="home-height" placeholder="身高 (cm)" required>
+                                    <input type="number" id="home-weight" placeholder="体重 (kg)" required>
+                                    <select id="home-goal" required>
+                                        <option value="">选择您的目标</option>
+                                        <option value="weight_loss">减脂塑形</option>
+                                        <option value="muscle_gain">增肌</option>
+                                        <option value="keep_fit">保持健康</option>
+                                    </select>
+                                    <select id="home-frequency" required>
+                                        <option value="">选择锻炼频率</option>
+                                        <option value="1-2_times_week">每周1-2次</option>
+                                        <option value="3-4_times_week">每周3-4次</option>
+                                        <option value="5_times_week">每周5次以上</option>
+                                    </select>
+                                    <div style="display:flex;gap:12px;">
+                                        <button type="submit">保存</button>
+                                        <button type="button" id="go-plan-btn">开始制定计划</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="home-right"></div>
+                    </div>
+                </section>
                 <section id="plan" class="content-section">
-                    <h2>您的专属计划</h2>
-                    <div class="plan-container">
-                        <div id="workout-calendar"><h3>本周锻炼日历</h3><p>请先填写您的个人信息以生成计划。</p></div>
-                        <div id="diet-recommendation"><h3>今日饮食建议</h3></div>
+                    <div class="plan-layout-top">
+                        <div class="chat-container wide" id="plan-chat">
+                            <div id="plan-chat-box" class="chat-messages"></div>
+                            <div class="input-area">
+                                <input type="text" id="plan-chat-input" placeholder="请输入您的个性化需求...">
+                                <button id="plan-chat-send">发送</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plan-layout-bottom">
+                        <div class="plan-bottom-left">
+                            <div class="calendar-header">
+                                <button id="prev-month-btn" class="calendar-nav">上个月</button>
+                                <div id="calendar-title" class="calendar-title"></div>
+                                <button id="next-month-btn" class="calendar-nav">下个月</button>
+                            </div>
+                            <div id="plan-calendar" class="plan-calendar"></div>
+                            <div id="plan-day-detail" class="plan-day-detail"></div>
+                            <div id="plan-stats" class="plan-stats plan-card">
+                                <div class="plan-stats-header">
+                                    <div class="stats-tabs">
+                                        <button class="stats-tab active" data-metric="weight_bmi">体重 / BMI</button>
+                                        <button class="stats-tab" data-metric="weekly_completed">每周完成天数</button>
+                                        <button class="stats-tab" data-metric="monthly_sessions">最近30天锻炼次数</button>
+                                    </div>
+                                    <form id="metrics-form" class="metrics-form">
+                                        <input type="date" id="metrics-date" required>
+                                        <input type="number" id="metrics-weight" step="0.1" placeholder="体重(kg)" required>
+                                        <button type="submit" class="adopt-btn">记录</button>
+                                    </form>
+                                </div>
+                                <div class="stats-canvas-wrap">
+                                    <canvas id="planStatsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="plan-bottom-right">
+                            <div id="plan-summary" class="plan-summary"></div>
+                        </div>
                     </div>
                 </section>
 
                 <section id="routes" class="content-section">
-                    <h2>锻炼路线</h2>
-                    <div class="route-generation-controls">
-                        <input type="text" id="route-request-input" placeholder="例如：给我规划一条风景好的5公里跑步路线">
-                        <button id="generate-route-btn">生成路线描述</button>
-                    </div>
-                    <div id="route-description">
+                    <div class="routes-layout">
+                        <div class="routes-left">
+                            <div class="chat-container wide" id="route-chat">
+                                <div id="route-chat-box" class="chat-messages"></div>
+                                <div class="input-area">
+                                    <input type="text" id="route-request-input" placeholder="例如：给我规划一条风景好的5公里跑步路线">
+                                    <button id="generate-route-btn">发送</button>
+                                </div>
+                            </div>
+                            <div id="route-description"></div>
+                            
                         </div>
-                    <div id="map"></div>
-                    <div id="route-history">
-                        <h3>历史路线</h3>
+                        <div class="routes-right">
+                            <div id="map"></div>
+                        </div>
                     </div>
                 </section>
 
                 <section id="medical" class="content-section">
-                    <h2>运动医疗咨询</h2>
                     <div class="chat-container">
                         <div id="chat-box"></div>
                         <div class="input-area">
@@ -99,6 +161,11 @@
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <!-- 模块化脚本 -->
+    <script src="js/common.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/plan.js"></script>
+    <script src="js/route.js"></script>
+    <script src="js/consult.js"></script>
 </body>
 </html>

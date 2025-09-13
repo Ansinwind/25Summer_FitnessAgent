@@ -1,10 +1,13 @@
 /* --- 全局与配色 --- */
 :root {
-    --primary-color: #003366; /* 商务蓝 */
-    --secondary-color: #f4f7f6; /* 浅灰背景 */
-    --accent-color: #007BFF;   /* 活力蓝 */
-    --text-color: #333;
+    --primary-color: #0f0f10; /* 主黑 */
+    --secondary-color: #141416; /* 深灰黑背景 */
+    --accent-color: #ff7a00;   /* 橙色强调 */
+    --text-color: #e6e6e6;     /* 主体文字 */
+    --muted-text-color: #a8a8a8;
     --light-text-color: #fff;
+    --elevated-bg: #1b1c1f;
+    --elevated-contrast: #101113;
 }
 
 body {
@@ -16,56 +19,73 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* 在有左侧面板时，主容器右移，避免被遮挡 */
+body.has-onboarding #main-container {
+    margin-left: 360px;
+}
+/* 仅主页显示背景 */
+body.page-home {
+    background-image: url('/assets/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
 /* --- Onboarding 弹窗 --- */
+/* 左侧个人信息面板（由原弹窗改造） */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 360px;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(16,17,19,0.88);
     display: none; /* JS控制显示 */
-    justify-content: center;
-    align-items: center;
     z-index: 1000;
+    backdrop-filter: blur(4px);
 }
 .modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    background: transparent;
+    padding: 24px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 .modal-content h2 {
-    color: var(--primary-color);
-    margin-top: 0;
+    color: var(--light-text-color);
+    margin-top: 8px;
 }
 .modal-content p {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    color: var(--muted-text-color);
 }
 .modal-content form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
-/* 【新增】textarea样式 */
 .modal-content input, .modal-content select, .modal-content button, .modal-content textarea {
     padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #2a2c31;
+    border-radius: 8px;
     font-size: 16px;
-    font-family: inherit; /* 继承字体 */
+    font-family: inherit;
+    background: var(--elevated-bg);
+    color: var(--light-text-color);
+}
+.modal-content input::placeholder, .modal-content textarea::placeholder {
+    color: #8a8d93;
 }
 .modal-content button {
     background-color: var(--accent-color);
     color: var(--light-text-color);
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: filter 0.2s;
 }
 .modal-content button:hover {
-    background-color: #0056b3;
+    filter: brightness(1.1);
 }
 
 /* --- 主体布局 --- */
@@ -74,13 +94,14 @@ body {
 }
 
 header {
-    background-color: var(--primary-color);
+    background-color: rgba(15,15,16,0.85);
     color: var(--light-text-color);
     padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap; /* 在小屏幕上换行 */
+    backdrop-filter: blur(6px);
 }
 
 header h1 {
@@ -108,8 +129,9 @@ header h1 {
 nav {
     display: flex;
     justify-content: center;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: rgba(20,20,22,0.85);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    backdrop-filter: blur(6px);
 }
 .nav-btn {
     padding: 15px 25px;
@@ -118,7 +140,7 @@ nav {
     cursor: pointer;
     font-size: 16px;
     position: relative;
-    color: var(--text-color);
+    color: var(--muted-text-color);
     transition: color 0.3s;
 }
 .nav-btn.active {
@@ -138,28 +160,163 @@ nav {
 /* --- 滑动交互 --- */
 #content-slider {
     display: flex;
-    width: 300%; /* 3个section */
+    width: 400%; /* 4个section：home/plan/routes/medical */
     transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .content-section {
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
+    color: var(--text-color);
 }
 
 /* --- 各 Section 特有样式 --- */
 
 /* 计划 Section */
-.plan-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+
+/* 新版计划主区布局 */
+.plan-main {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
 }
-#workout-calendar, #diet-recommendation {
-    background: white;
-    padding: 20px;
+.plan-layout-top {
+    margin-bottom: 16px;
+}
+.plan-layout-bottom {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 左大右小 */
+    gap: 16px;
+}
+.plan-bottom-left {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.plan-bottom-right {
+    display: flex;
+}
+.plan-summary {
+    flex: 1 1 0;
+    background: rgba(20,20,22,0.85);
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    min-width: 320px;
+    max-width: 480px;
+    backdrop-filter: blur(6px);
+}
+.meal-card { transition: transform 0.2s ease; }
+.meal-card:hover { transform: scale(1.02); }
+.meal-pie { margin-top: 8px; }
+.meal-pie canvas { width: 100%; height: 180px; }
+.meal-card { position: relative; }
+.meal-card .meal-pie {
+    position: absolute;
+    right: 100%;
+    margin-right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 220px;
+    pointer-events: none;
+    z-index: 5;
+}
+.plan-side {
+    min-width: 320px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.plan-calendar {
+    background: rgba(20,20,22,0.85);
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+    backdrop-filter: blur(6px);
+}
+.calendar-day {
+    background: var(--elevated-bg);
+    border-radius: 6px;
+    padding: 10px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s, color 0.2s;
+}
+.calendar-day:hover, .calendar-day.active {
+    background: var(--accent-color);
+    color: #000;
+}
+.calendar-day.completed {
+    outline: 2px solid #2ecc71;
+    box-shadow: 0 0 0 2px rgba(46,204,113,0.25) inset;
+}
+.calendar-title {
+    font-weight: bold;
+}
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.calendar-nav {
+    border: none;
+    background: var(--accent-color);
+    color: #000;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.plan-day-detail {
+    background: rgba(20,20,22,0.85);
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    padding: 18px;
+    min-height: 80px;
+    backdrop-filter: blur(6px);
+}
+.plan-stats {
+    margin-top: 12px;
+}
+.plan-stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.stats-tabs { display: flex; gap: 8px; }
+.stats-tab {
+    padding: 6px 12px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #2a2c31;
+    background: #141416;
+    color: var(--muted-text-color);
+    cursor: pointer;
+}
+.stats-tab.active { background: var(--accent-color); color: #000; border: none; }
+.metrics-form { display: flex; gap: 8px; align-items: center; }
+.metrics-form input {
+    padding: 8px 10px;
+    background: var(--elevated-bg);
+    border: 1px solid #2a2c31;
+    border-radius: 8px;
+    color: var(--light-text-color);
+}
+.stats-canvas-wrap { width: 100%; }
+.stats-canvas-wrap canvas { width: 100%; height: 260px; }
+.plan-card {
+    background: var(--elevated-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    text-align: left;
 }
 
 #workout-calendar ul {
@@ -179,10 +336,10 @@ nav {
 
 /* 路线 Section */
 #map {
-    height: 50vh; /* 调整高度以适应不同屏幕 */
+    height: 70vh; /* 适配左右布局更高的地图 */
     width: 100%;
-    border-radius: 8px;
-    margin-top: 20px; /* 【新增】与上方控件的间距 */
+    border-radius: 12px;
+    background: var(--elevated-contrast);
 }
 
 /* 【新增】路线生成控件样式 */
@@ -209,15 +366,17 @@ nav {
     transition: background-color 0.3s;
 }
 .route-generation-controls button:hover {
-    background-color: #0056b3;
+    filter: brightness(1.1);
 }
 /* 【新增】路线描述区域样式 */
 #route-description {
-    background: white;
-    padding: 20px;
+    background: rgba(20,20,22,0.85);
+    padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.25);
     line-height: 1.6;
+    color: var(--muted-text-color);
+    backdrop-filter: blur(6px);
 }
 
 
@@ -228,40 +387,55 @@ nav {
     height: 75vh;
     max-width: 800px;
     margin: 0 auto;
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    background: rgba(20,20,22,0.85);
+    border: none;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+}
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(16,17,19,0.6), rgba(16,17,19,0.2));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-container.wide {
+    max-width: none;
+    width: 100%;
 }
 
 #chat-box {
     flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
-    background-color: #f9f9f9;
+    background: linear-gradient(180deg, rgba(16,17,19,0.6), rgba(16,17,19,0.2));
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
 .chat-message {
-    padding: 10px 15px;
-    border-radius: 18px;
+    padding: 12px 16px;
+    border-radius: 16px;
     max-width: 80%;
-    line-height: 1.5;
+    line-height: 1.6;
     word-wrap: break-word;
+    white-space: pre-wrap; /* 保留换行 */
 }
 
 .user-message {
-    background-color: var(--accent-color);
-    color: white;
+    background: linear-gradient(135deg, #ff8a1a, #ff7a00);
+    color: #000;
     align-self: flex-end; /* 用户消息靠右 */
     border-bottom-right-radius: 4px;
 }
 
 .ai-message {
-    background-color: #e9e9eb;
+    background: #222327;
     color: var(--text-color);
     align-self: flex-start; /* AI消息靠左 */
     border-bottom-left-radius: 4px;
@@ -269,7 +443,8 @@ nav {
 
 .input-area {
     display: flex;
-    border-top: 1px solid #e0e0e0;
+    border-top: none;
+    background: #0f0f10;
 }
 
 #chat-input {
@@ -278,17 +453,122 @@ nav {
     padding: 15px;
     font-size: 16px;
     outline: none;
+    background: #0f0f10;
+    color: var(--light-text-color);
 }
+/* 统一所有聊天输入为黑色并自适应 */
+#plan-chat-input, #route-request-input {
+    flex-grow: 1;
+    border: none !important;
+    padding: 15px;
+    font-size: 16px;
+    outline: none;
+    background: #0f0f10 !important;
+    color: var(--light-text-color) !important;
+}
+.input-area button { height: auto; }
+
+/* 采用/取消 控件样式 */
+.adopt-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.adopt-btn, .cancel-btn, .complete-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+.adopt-btn { background: var(--accent-color); color: #000; }
+.cancel-btn { background: #2a2c31; color: #e6e6e6; }
+.complete-btn { background: #2ecc71; color: #000; }
 
 #send-chat-btn {
     border: none;
     background-color: var(--accent-color);
-    color: white;
-    padding: 0 25px;
+    color: #000;
+    padding: 0 20px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
+    transition: filter 0.2s;
 }
 #send-chat-btn:hover {
-    background-color: #0056b3;
+    filter: brightness(1.1);
 }
+
+/* 路线页左右布局 */
+.routes-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr;
+    gap: 16px;
+    align-items: stretch;
+}
+.routes-left {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.routes-right {
+    display: flex;
+}
+.routes-right #map {
+    width: 100%;
+    height: 75vh;
+}
+
+/* 主页左侧信息卡片（与原弹窗风格一致） */
+.home-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 24px;
+    align-items: center;
+    min-height: 60vh;
+}
+.home-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.home-card {
+    width: 100%;
+    max-width: 560px;
+    background: rgba(20,20,22,0.86);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+}
+.home-card h2 {
+    margin: 0 0 8px 0;
+    color: var(--light-text-color);
+}
+.home-card p {
+    margin: 0 0 16px 0;
+    color: var(--muted-text-color);
+}
+.home-card form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+.home-card input, .home-card select, .home-card button {
+    padding: 12px;
+    border: 1px solid #2a2c31;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    background: var(--elevated-bg);
+    color: var(--light-text-color);
+}
+.home-card input::placeholder { color: #8a8d93; }
+.home-card button[type="submit"], .home-card #go-plan-btn {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    cursor: pointer;
+}
+.home-card button:hover { filter: brightness(1.06); }
+.home-right { display: block; }
