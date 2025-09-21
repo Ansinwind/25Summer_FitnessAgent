@@ -89,7 +89,7 @@ npm install
 ```
 
 3. **环境配置**
-   创建 `.env` 文件，复制env.txt的appkey并且配置以下环境变量：
+   在 `.env` 文件配置以下环境变量：
 
 ```env
 
