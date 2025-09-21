@@ -1,4 +1,5 @@
 # 25Summer_FitnessAgent
+<<<<<<< HEAD
 
 # AI Fitness Agent - 智能健身助手
 
@@ -205,4 +206,6 @@ summer/
 
 **注意**: 使用前请确保已正确配置所有必要的API密钥和环境变量。
 
+=======
+>>>>>>> d23d6fc8c946405d5f6934beae56bcaf6a6e6601
 2025ZJU_SummerSemester_AgentProject
