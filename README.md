@@ -1,5 +1,4 @@
 # 25Summer_FitnessAgent
-<<<<<<< HEAD
 
 # AI Fitness Agent - 智能健身助手
 
