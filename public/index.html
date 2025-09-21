@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Fitness Agent</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=iXKAwRbZ2ccXtZnAa36190nQhsGRaeXu"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <div id="onboarding-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>欢迎使用 AI Fitness Agent</h2>
+        <p>为了给您最精准的建议，请填写以下信息：</p>
+        <form id="user-info-form">
+          <div class="form-section">
+            <h3>基本信息</h3>
+            <input type="number" id="height" placeholder="身高 (cm)" required />
+            <input type="number" id="weight" placeholder="体重 (kg)" required />
+            <input type="number" id="age" placeholder="年龄" required />
+            <select id="gender" required>
+              <option value="">选择性别</option>
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+            </select>
+          </div>
+
+          <div class="form-section">
+            <h3>健身目标</h3>
+            <select id="goal" required>
+              <option value="">选择您的目标</option>
+              <option value="weight_loss">减脂塑形</option>
+              <option value="muscle_gain">增肌</option>
+              <option value="keep_fit">保持健康</option>
+            </select>
+            <select id="frequency" required>
+              <option value="">选择锻炼频率</option>
+              <option value="1-2_times_week">每周1-2次</option>
+              <option value="3-4_times_week">每周3-4次</option>
+              <option value="5_times_week">每周5次以上</option>
+            </select>
+          </div>
+
+          <div class="form-section">
+            <h3>身体数据（可选）</h3>
+            <input
+              type="number"
+              id="body_fat"
+              placeholder="体脂率 (%)"
+              step="0.1"
+            />
+            <input
+              type="number"
+              id="metabolic_rate"
+              placeholder="基础代谢率 (kcal/天)"
+              step="1"
+            />
+          </div>
+
+          <div class="form-section">
+            <h3>健康状况（可选）</h3>
+            <textarea
+              id="medical_history"
+              placeholder="过往病史、运动损伤等"
+              rows="2"
+            ></textarea>
+          </div>
+
+          <button type="submit">完成</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="main-container">
+      <header>
+        <h1>AI Fitness Agent</h1>
+        <div class="header-nav">
+          <button class="nav-btn active" data-target="home">主页</button>
+          <button class="nav-btn" data-target="plan">健身饮食计划</button>
+          <button class="nav-btn" data-target="routes">锻炼路线计划</button>
+          <button class="nav-btn" data-target="medical">运动医疗咨询</button>
+        </div>
+        <div id="user-profile-summary">
+          <span id="profile-text"></span>
+          <div class="profile-actions">
+            <button id="edit-profile-btn">修改信息</button>
+            <button id="export-data-btn">导出数据</button>
+            <button id="import-data-btn">导入数据</button>
+            <button id="show-state-btn">系统状态</button>
+            <input
+              type="file"
+              id="import-file-input"
+              accept=".json"
+              style="display: none"
+            />
+          </div>
+        </div>
+      </header>
+
+      <nav></nav>
+
+      <main>
+        <div id="content-slider">
+          <section id="home" class="content-section">
+            <div class="home-layout">
+              <div class="home-left">
+                <div class="home-card">
+                  <h2>欢迎使用 AI Fitness Agent</h2>
+                  <p>完善信息，获取专属健身与路线建议。</p>
+                  <form id="home-user-info-form">
+                    <div class="form-section">
+                      <h3>基本信息</h3>
+                      <input
+                        type="number"
+                        id="home-height"
+                        placeholder="身高 (cm)"
+                        required
+                      />
+                      <input
+                        type="number"
+                        id="home-weight"
+                        placeholder="体重 (kg)"
+                        required
+                      />
+                      <input
+                        type="number"
+                        id="home-age"
+                        placeholder="年龄"
+                        required
+                      />
+                      <select id="home-gender" required>
+                        <option value="">选择性别</option>
+                        <option value="male">男性</option>
+                        <option value="female">女性</option>
+                      </select>
+                    </div>
+
+                    <div class="form-section">
+                      <h3>健身目标</h3>
+                      <select id="home-goal" required>
+                        <option value="">选择您的目标</option>
+                        <option value="weight_loss">减脂塑形</option>
+                        <option value="muscle_gain">增肌</option>
+                        <option value="keep_fit">保持健康</option>
+                      </select>
+                      <select id="home-frequency" required>
+                        <option value="">选择锻炼频率</option>
+                        <option value="1-2_times_week">每周1-2次</option>
+                        <option value="3-4_times_week">每周3-4次</option>
+                        <option value="5_times_week">每周5次以上</option>
+                      </select>
+                    </div>
+
+                    <div class="form-section">
+                      <h3>身体数据（可选，用于更精准的建议）</h3>
+                      <input
+                        type="number"
+                        id="home-body_fat"
+                        placeholder="体脂率 (%)"
+                        step="0.1"
+                      />
+                      <input
+                        type="number"
+                        id="home-metabolic_rate"
+                        placeholder="基础代谢率 (kcal/天)"
+                        step="1"
+                      />
+                      <input
+                        type="number"
+                        id="home-muscle_mass"
+                        placeholder="肌肉量 (kg)"
+                        step="0.1"
+                      />
+                    </div>
+
+                    <div class="form-section">
+                      <h3>健康状况</h3>
+                      <textarea
+                        id="home-medical_history"
+                        placeholder="过往病史、运动损伤等（可选）"
+                        rows="3"
+                      ></textarea>
+                      <textarea
+                        id="home-current_medications"
+                        placeholder="当前用药情况（可选）"
+                        rows="2"
+                      ></textarea>
+                      <textarea
+                        id="home-allergies"
+                        placeholder="过敏史（可选）"
+                        rows="2"
+                      ></textarea>
+                    </div>
+
+                    <div class="form-section">
+                      <h3>运动偏好</h3>
+                      <div class="checkbox-group">
+                        <label
+                          ><input
+                            type="checkbox"
+                            name="home-preferred_activities"
+                            value="running"
+                          />
+                          跑步</label
+                        >
+                        <label
+                          ><input
+                            type="checkbox"
+                            name="home-preferred_activities"
+                            value="weight_training"
+                          />
+                          力量训练</label
+                        >
+                        <label
+                          ><input
+                            type="checkbox"
+                            name="home-preferred_activities"
+                            value="yoga"
+                          />
+                          瑜伽</label
+                        >
+                        <label
+                          ><input
+                            type="checkbox"
+                            name="home-preferred_activities"
+                            value="swimming"
+                          />
+                          游泳</label
+                        >
+                        <label
+                          ><input
+                            type="checkbox"
+                            name="home-preferred_activities"
+                            value="cycling"
+                          />
+                          骑行</label
+                        >
+                        <label
+                          ><input
+                            type="checkbox"
+                            name="home-preferred_activities"
+                            value="dancing"
+                          />
+                          舞蹈</label
+                        >
+                      </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px">
+                      <button type="submit">保存</button>
+                      <button type="button" id="go-plan-btn">
+                        开始制定计划
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="home-right"></div>
+            </div>
+          </section>
+          <section id="plan" class="content-section">
+            <div class="plan-layout-top">
+              <div class="chat-container wide" id="plan-chat">
+                <div id="plan-chat-box" class="chat-messages"></div>
+                <div class="input-area">
+                  <input
+                    type="text"
+                    id="plan-chat-input"
+                    placeholder="请输入您的个性化需求..."
+                  />
+                  <button id="plan-chat-send">发送</button>
+                </div>
+              </div>
+            </div>
+            <div class="plan-layout-bottom">
+              <div class="plan-bottom-left">
+                <div class="calendar-header">
+                  <button id="prev-month-btn" class="calendar-nav">
+                    上个月
+                  </button>
+                  <div id="calendar-title" class="calendar-title"></div>
+                  <button id="next-month-btn" class="calendar-nav">
+                    下个月
+                  </button>
+                </div>
+                <div id="plan-calendar" class="plan-calendar"></div>
+                <div id="plan-day-detail" class="plan-day-detail"></div>
+
+                <!-- 运动强度评价和反馈系统 -->
+                <div
+                  id="exercise-feedback"
+                  class="exercise-feedback plan-card"
+                  style="display: none"
+                >
+                  <h3>运动反馈</h3>
+                  <div class="feedback-section">
+                    <label>运动强度评价：</label>
+                    <div class="intensity-rating">
+                      <button class="intensity-btn" data-intensity="1">
+                        很轻松
+                      </button>
+                      <button class="intensity-btn" data-intensity="2">
+                        轻松
+                      </button>
+                      <button class="intensity-btn" data-intensity="3">
+                        适中
+                      </button>
+                      <button class="intensity-btn" data-intensity="4">
+                        困难
+                      </button>
+                      <button class="intensity-btn" data-intensity="5">
+                        很困难
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="feedback-section">
+                    <label>完成情况：</label>
+                    <div class="completion-status">
+                      <label
+                        ><input
+                          type="radio"
+                          name="completion"
+                          value="completed"
+                        />
+                        全部完成</label
+                      >
+                      <label
+                        ><input
+                          type="radio"
+                          name="completion"
+                          value="partial"
+                        />
+                        部分完成</label
+                      >
+                      <label
+                        ><input
+                          type="radio"
+                          name="completion"
+                          value="not_completed"
+                        />
+                        未完成</label
+                      >
+                    </div>
+                  </div>
+
+                  <div class="feedback-section">
+                    <label>身体感受：</label>
+                    <div class="body-feeling">
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="body_feeling"
+                          value="energetic"
+                        />
+                        精力充沛</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="body_feeling"
+                          value="tired"
+                        />
+                        疲劳</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="body_feeling"
+                          value="sore"
+                        />
+                        肌肉酸痛</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="body_feeling"
+                          value="pain"
+                        />
+                        疼痛</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="body_feeling"
+                          value="dizzy"
+                        />
+                        头晕</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="body_feeling"
+                          value="nausea"
+                        />
+                        恶心</label
+                      >
+                    </div>
+                  </div>
+
+                  <div class="feedback-section">
+                    <label>不适症状（如有）：</label>
+                    <textarea
+                      id="discomfort-notes"
+                      placeholder="请描述任何不适症状或需要调整的地方..."
+                      rows="3"
+                    ></textarea>
+                  </div>
+
+                  <div class="feedback-section">
+                    <label>建议调整：</label>
+                    <div class="adjustment-suggestions">
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="adjustments"
+                          value="reduce_intensity"
+                        />
+                        降低强度</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="adjustments"
+                          value="increase_intensity"
+                        />
+                        提高强度</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="adjustments"
+                          value="change_exercises"
+                        />
+                        更换动作</label
+                      >
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="adjustments"
+                          value="rest_more"
+                        />
+                        增加休息</label
+                      >
+                    </div>
+                  </div>
+
+                  <div class="feedback-actions">
+                    <button id="submit-feedback-btn" class="adopt-btn">
+                      提交反馈
+                    </button>
+                    <button id="skip-feedback-btn" class="cancel-btn">
+                      跳过
+                    </button>
+                  </div>
+                </div>
+                <div id="plan-stats" class="plan-stats plan-card">
+                  <div class="plan-stats-header">
+                    <div class="stats-tabs">
+                      <button class="stats-tab active" data-metric="weight_bmi">
+                        体重 / BMI
+                      </button>
+                      <button class="stats-tab" data-metric="weekly_completed">
+                        每周完成天数
+                      </button>
+                      <button class="stats-tab" data-metric="monthly_sessions">
+                        最近30天锻炼次数
+                      </button>
+                    </div>
+                    <form id="metrics-form" class="metrics-form">
+                      <input type="date" id="metrics-date" required />
+                      <input
+                        type="number"
+                        id="metrics-weight"
+                        step="0.1"
+                        placeholder="体重(kg)"
+                        required
+                      />
+                      <button type="submit" class="adopt-btn">记录</button>
+                    </form>
+                  </div>
+                  <div class="stats-canvas-wrap">
+                    <canvas id="planStatsChart"></canvas>
+                  </div>
+                </div>
+                <!-- 计划管理和用户记录整体移到统计图下方 -->
+                <div class="plan-user-wrapper">
+                  <!-- 计划管理工具 -->
+                  <div class="plan-management plan-card">
+                    <h3>📋 计划管理</h3>
+                    <div class="management-actions">
+                      <button
+                        class="btn btn-primary"
+                        onclick="planPage.showPlanHistory()"
+                      >
+                        📚 版本历史
+                      </button>
+                      <button
+                        class="btn btn-primary"
+                        onclick="planPage.exportPlanData()"
+                      >
+                        💾 导出计划
+                      </button>
+                    </div>
+                    <div class="plan-info">
+                      <p id="current-plan-info">当前计划：无</p>
+                      <p id="last-update-info">最后更新：无</p>
+                    </div>
+                  </div>
+                  <!-- 用户记录汇总 -->
+                  <div class="user-records plan-card">
+                    <h3>📊 用户记录</h3>
+                    <div class="records-summary">
+                      <div class="record-item">
+                        <span class="record-label">偏好记录：</span>
+                        <span id="preferences-count" class="record-count"
+                          >0 条</span
+                        >
+                        <button
+                          class="btn btn-sm btn-primary"
+                          onclick="planPage.showUserPreferences()"
+                        >
+                          查看
+                        </button>
+                      </div>
+                      <div class="record-item">
+                        <span class="record-label">反馈记录：</span>
+                        <span id="feedback-count" class="record-count"
+                          >0 条</span
+                        >
+                        <button
+                          class="btn btn-sm btn-primary"
+                          onclick="planPage.showExerciseFeedback()"
+                        >
+                          查看
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="plan-bottom-right">
+                <div id="plan-summary" class="plan-summary"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="routes" class="content-section">
+            <div class="routes-layout">
+              <div class="routes-left">
+                <div class="chat-container wide" id="route-chat">
+                  <div id="route-chat-box" class="chat-messages"></div>
+                  <div class="input-area">
+                    <input
+                      type="text"
+                      id="route-request-input"
+                      placeholder="例如：给我规划一条风景好的5公里跑步路线"
+                    />
+                    <button id="generate-route-btn">发送</button>
+                  </div>
+                </div>
+                <div id="route-description"></div>
+              </div>
+              <div class="routes-right">
+                <div id="map"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="medical" class="content-section">
+            <div class="medical-layout">
+              <div class="medical-left">
+                <div class="chat-container">
+                  <div id="chat-box"></div>
+                  <div class="input-area">
+                    <input
+                      type="text"
+                      id="chat-input"
+                      placeholder="请输入您的问题..."
+                    />
+                    <button id="send-chat-btn">发送</button>
+                  </div>
+                </div>
+              </div>
+              <div class="medical-right">
+                <!-- 医疗记录汇总 -->
+                <div class="medical-records plan-card">
+                  <h3>🏥 医疗记录</h3>
+                  <div class="records-summary">
+                    <div class="record-item">
+                      <span class="record-label">咨询记录：</span>
+                      <span id="consultation-count" class="record-count"
+                        >0 条</span
+                      >
+                      <button
+                        class="btn btn-sm btn-primary"
+                        onclick="consultPage.exportAllConsultations()"
+                      >
+                        导出
+                      </button>
+                    </div>
+                    <div class="record-item">
+                      <span class="record-label">病史记录：</span>
+                      <span id="history-count" class="record-count">0 条</span>
+                      <button
+                        class="btn btn-sm btn-primary"
+                        onclick="consultPage.showMedicalHistory()"
+                      >
+                        查看
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 医疗咨询历史 -->
+                <div
+                  id="consultation-history"
+                  class="consultation-history plan-card"
+                >
+                  <h3>💬 最近咨询</h3>
+                  <p class="no-history">暂无医疗咨询记录</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- 系统状态面板 -->
+    <div id="state-panel" class="state-panel" style="display: none">
+      <div class="state-panel-content">
+        <div class="state-panel-header">
+          <h3>ABC一体化系统状态</h3>
+          <button id="close-state-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="state-panel-body">
+          <div class="state-section">
+            <h4>当前状态</h4>
+            <div id="current-state-info">
+              <p>状态: <span id="daily-status">正常</span></p>
+              <p>能量水平: <span id="energy-level">5</span>/10</p>
+              <p>最后活动: <span id="last-activity">无</span></p>
+            </div>
+          </div>
+
+          <div class="state-section">
+            <h4>服务状态</h4>
+            <div id="service-status">
+              <div class="service-item">
+                <span class="service-name">A - 计划生成</span>
+                <span class="service-status" id="plan-status">未生成</span>
+              </div>
+              <div class="service-item">
+                <span class="service-name">B - 路线规划</span>
+                <span class="service-status" id="route-status">未规划</span>
+              </div>
+              <div class="service-item">
+                <span class="service-name">C - 医疗咨询</span>
+                <span class="service-status" id="consult-status">未咨询</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-section">
+            <h4>相互影响</h4>
+            <div id="interaction-info">
+              <p id="plan-route-influence">计划 → 路线: 无影响</p>
+              <p id="route-plan-influence">路线 → 计划: 无影响</p>
+              <p id="consult-plan-influence">医疗 → 计划: 无影响</p>
+              <p id="consult-route-influence">医疗 → 路线: 无影响</p>
+            </div>
+          </div>
+
+          <div class="state-actions">
+            <button id="refresh-state-btn" class="adopt-btn">刷新状态</button>
+            <button id="reset-state-btn" class="cancel-btn">重置状态</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模块化脚本 -->
+    <script src="js/fitness-state-manager.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/plan.js"></script>
+    <script src="js/route.js"></script>
+    <script src="js/consult.js"></script>
+  </body>
+</html>
